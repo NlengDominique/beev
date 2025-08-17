@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Vehicule\V1\StoreRequest;
+use App\Http\Requests\Vehicule\V1\UpdateRequest;
+use App\Http\Resources\V1\VehiculeResource;
 use App\Models\Vehicule;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -18,15 +21,21 @@ class VehiculeController extends Controller
             ->allowedFilters(['marque', 'modele', 'statut','type_moteur'])
             ->paginate(10);
 
-        return response()->json($vehicles);
+        return response()->json(VehiculeResource::collection($vehicles) ,200);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreRequest $request)
     {
-        //
+
+        $attributes = $request->validated();
+
+        $vehicule = Vehicule::create($attributes);
+
+        return response()->json(VehiculeResource::make($vehicule), 201);
+        
     }
 
     /**
@@ -34,21 +43,33 @@ class VehiculeController extends Controller
      */
     public function show(string $id)
     {
-       $vehicule =Vehicule::find($id);
+       $vehicule = Vehicule::find($id);
 
        if(!$vehicule) {
            return response()->json(['message' => 'Vehicle not found'], 404);
        }
 
-       return response()->json($vehicule);
+       return response()->json(VehiculeResource::make($vehicule), 200);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateRequest $request, string $id)
     {
-        //
+
+        $vehicule = Vehicule::find($id);
+
+        if (!$vehicule) {
+           return response()->json(['message' => 'Vehicle not found'], 404);
+        }
+
+        $attributes = $request->validated();
+
+        $vehicule->update($attributes);
+
+        return response()->json(VehiculeResource::make($vehicule), 200);
+        
     }
 
     /**
@@ -56,6 +77,14 @@ class VehiculeController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+       $vehicule = Vehicule::find($id);
+
+       if (!$vehicule) {
+           return response()->json(['message' => 'Vehicle not found'], 404);
+       }
+
+         $vehicule->delete();
+
+         return response()->json(['message' => 'Vehicle deleted successfully'], 200);
     }
 }

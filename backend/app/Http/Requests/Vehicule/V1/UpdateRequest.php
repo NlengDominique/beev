@@ -11,7 +11,7 @@ class UpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +21,15 @@ class UpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            //
+     return [
+            'marque' => 'sometimes|string|max:255',
+            'modele' => 'sometimes|string|max:255',
+            'capacite_batterie' => 'sometimes|integer|min:0',
+            'niveau_charge' => 'sometimes|integer|min:0|max:100',
+            'statut' => 'sometimes|in:available,charging,in_use',
+            'conso_energetique' => 'sometimes|numeric|min:0',
+            'type_moteur' => 'sometimes|in:BEV,ICE',
+            'emission_co' => 'sometimes|numeric|min:0',
         ];
     }
 }
