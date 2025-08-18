@@ -36,4 +36,26 @@ class AnalyticsController extends Controller
         return response()->json($stats);
     }
 
+    public function tauxDisponibilite(){
+
+        $vehiculesDispo = DB::table('vehicules')
+            ->select(DB::raw('COUNT(*) AS nb_vehicules_dispo')
+            )
+            ->where('statut','<>', 'available')
+            ->get();
+
+        $vehiculesTotal = DB::table('vehicules')
+            ->select(DB::raw('COUNT(*) AS nb_vehicules_total'))
+            ->get();
+
+      $tauxDisponibilite = $vehiculesDispo[0]->nb_vehicules_dispo / $vehiculesTotal[0]->nb_vehicules_total * 100;
+
+        $stats = [
+            'taux_disponibilite' => round($tauxDisponibilite, 2)
+        ];
+
+        return response()->json($stats);
+
+    }
+
 }
