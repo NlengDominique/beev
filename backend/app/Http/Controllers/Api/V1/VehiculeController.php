@@ -45,10 +45,6 @@ class VehiculeController extends Controller
     {
        $vehicule = Vehicule::find($id);
 
-       if(!$vehicule) {
-           return response()->json(['message' => 'Vehicle not found'], 404);
-       }
-
        return response()->json(VehiculeResource::make($vehicule), 200);
     }
 
@@ -58,13 +54,9 @@ class VehiculeController extends Controller
     public function update(UpdateRequest $request, string $id)
     {
 
-        $vehicule = Vehicule::find($id);
-
-        if (!$vehicule) {
-           return response()->json(['message' => 'Vehicle not found'], 404);
-        }
-
         $attributes = $request->validated();
+
+        $vehicule = Vehicule::find($id);
 
         $vehicule->update($attributes);
 
@@ -78,10 +70,6 @@ class VehiculeController extends Controller
     public function destroy(string $id)
     {
        $vehicule = Vehicule::find($id);
-
-       if (!$vehicule) {
-           return response()->json(['message' => 'Vehicle not found'], 404);
-       }
 
          $vehicule->delete();
 
