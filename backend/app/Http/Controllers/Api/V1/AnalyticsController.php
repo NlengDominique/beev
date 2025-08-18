@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Models\Vehicule;
 use DB;
-use Illuminate\Http\Request;
+
 
 class AnalyticsController extends Controller
 {
@@ -19,4 +18,22 @@ class AnalyticsController extends Controller
         return response()->json($stats);
 
     }
+
+
+    public function compareEmissions()
+    {
+
+     $stats = DB::table('vehicules')
+            ->select(
+                'type_moteur',
+                DB::raw('AVG(emission_co) AS moyenne_emission'),
+                DB::raw('MIN(emission_co) AS min_emission'),
+                DB::raw('MAX(emission_co) AS max_emission'),
+                DB::raw('COUNT(*) AS nb_vehicules')
+            )
+            ->groupBy('type_moteur')
+            ->get();
+        return response()->json($stats);
+    }
+
 }
