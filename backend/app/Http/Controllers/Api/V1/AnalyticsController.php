@@ -82,4 +82,19 @@ class AnalyticsController extends Controller
 
             }
 
+
+            public function fleetOperational(){
+
+                $stats = DB::table('vehicules')
+                    ->select(
+                        'statut',
+                        DB::raw('COUNT(*) AS nb_vehicules')
+                    )
+                    ->where('statut', '<>', 'charging','and','in_use')
+                    ->groupBy('statut')
+                    ->get();
+
+                return response()->json($stats);
+            }
+
 }
