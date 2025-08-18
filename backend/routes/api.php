@@ -24,6 +24,7 @@ Route::prefix('v1')->group(function(){
 Route::get('/analytics/fleet-efficiency',[AnalyticsController::class,'consoMoyenneParModele']);
 Route::get('/analytics/compare-emissions', [AnalyticsController::class, 'compareEmissions']);
 Route::get('/analytics/fleet-operational',[AnalyticsController::class,'tauxDisponibilite']);
+Route::get('/analytics/fleet-composition', [AnalyticsController::class, 'fleetComposition']);
 
 });
 

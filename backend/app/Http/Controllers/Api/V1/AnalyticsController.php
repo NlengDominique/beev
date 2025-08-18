@@ -58,4 +58,28 @@ class AnalyticsController extends Controller
 
     }
 
+    public function fleetComposition(){
+
+        $stats = DB::table('vehicules')
+            ->select(
+                'type_moteur',
+                DB::raw('COUNT(*) AS nb_vehicules')
+            )
+            ->groupBy('type_moteur')
+            ->get();
+
+           $vehiculesTotal = DB::table('vehicules')
+            ->select(DB::raw('COUNT(*) AS nb_vehicules_total'))
+            ->get();
+
+
+            $stats = $stats->map(function ($item) use ($vehiculesTotal) {
+                $item->proportion = round(($item->nb_vehicules / $vehiculesTotal[0]->nb_vehicules_total) * 100, 2);
+                return $item;
+            });
+
+        return response()->json($stats);
+
+            }
+
 }
