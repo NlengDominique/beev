@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Exceptions\VehiculeNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehicule\V1\StoreRequest;
 use App\Http\Requests\Vehicule\V1\UpdateRequest;
 use App\Http\Resources\V1\VehiculeResource;
 use App\Models\Vehicule;
-use Illuminate\Support\Facades\Redis;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Spatie\QueryBuilder\QueryBuilder;
 use Illuminate\Support\Facades\Cache;
+use App\Exceptions\InvalidUuidException;
+use Str;
 
 class VehiculeController extends Controller
 {
@@ -46,11 +49,12 @@ class VehiculeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-       $vehicule = Vehicule::find($id);
+        
+     $vehicule = $this->findVehiculeOrFail($id);
 
-       return response()->json(VehiculeResource::make($vehicule), 200);
+    return response()->json(VehiculeResource::make($vehicule), 200);
     }
 
     /**
@@ -59,9 +63,10 @@ class VehiculeController extends Controller
     public function update(UpdateRequest $request, string $id)
     {
 
-        $attributes = $request->validated();
 
-        $vehicule = Vehicule::find($id);
+        $vehicule = $this->findVehiculeOrFail($id);
+
+        $attributes = $request->validated();
 
         $vehicule->update($attributes);
 
@@ -73,11 +78,34 @@ class VehiculeController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
+    
     {
+      if (!Str::isUuid($id)) {
+        throw new VehiculeNotFoundException();
+    }
+        
        $vehicule = Vehicule::find($id);
+
+        if(!$vehicule) {
+         throw new VehiculeNotFoundException();
+       }
 
          $vehicule->delete();
 
          return response()->json(['message' => 'Vehicle deleted successfully'], 200);
     }
+
+    private function findVehiculeOrFail(string $id): Vehicule
+{
+    if (!Str::isUuid($id)) {
+        throw new VehiculeNotFoundException();
+    }
+
+    $vehicule = Vehicule::find($id);
+    if (!$vehicule) {
+        throw new VehiculeNotFoundException();
+    }
+
+    return $vehicule;
+}
 }
