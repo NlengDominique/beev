@@ -4,7 +4,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use App\Exceptions\ApiExceptionHandler;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,16 +17,24 @@ return Application::configure(basePath: dirname(__DIR__))
         
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (NotFoundHttpException $e, Request $request) {
+         $exceptions->render(function (Throwable $e, Request $request) {
+           $className = get_class($e);
+            $handlers = ApiExceptionHandler::$handlers;
 
-        if ($request->is('api/v1/*')) {
-
-            return response()->json([
-
-                'message' => 'Record not found.'
-
-            ], 404);
-
-        }
-    });
+            if (array_key_exists($className, $handlers)) {
+                $method = $handlers[$className];
+                $apiException = new ApiExceptionHandler();
+                return $apiException->$method($e, $request);
+            }
+           return response()->json([
+                'error' => [
+                    'type' => basename(get_class($e)),
+                    'status' => intval($e->getCode()),
+                    'message' =>  $e->getMessage(),
+                    'page' => $e->getFile(),
+                    'line' => $e->getLine()
+                ]
+            ]);
+        });
+    
     })->create();

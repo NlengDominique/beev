@@ -25,7 +25,6 @@ Route::get('/analytics/fleet-efficiency',[AnalyticsController::class,'consoMoyen
 Route::get('/analytics/compare-emissions', [AnalyticsController::class, 'compareEmissions']);
 Route::get('/analytics/fleet-operational',[AnalyticsController::class,'tauxDisponibilite']);
 Route::get('/analytics/fleet-operational/vehicle',[AnalyticsController::class,'fleetOperational']);
-
 Route::get('/analytics/fleet-composition', [AnalyticsController::class, 'fleetComposition']);
 
 });

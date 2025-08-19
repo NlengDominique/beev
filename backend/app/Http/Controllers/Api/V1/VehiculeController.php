@@ -7,8 +7,9 @@ use App\Http\Requests\Vehicule\V1\StoreRequest;
 use App\Http\Requests\Vehicule\V1\UpdateRequest;
 use App\Http\Resources\V1\VehiculeResource;
 use App\Models\Vehicule;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 use Spatie\QueryBuilder\QueryBuilder;
+use Illuminate\Support\Facades\Cache;
 
 class VehiculeController extends Controller
 {
@@ -17,9 +18,13 @@ class VehiculeController extends Controller
      */
     public function index()
     {
-       $vehicles = QueryBuilder::for(Vehicule::class)
-            ->allowedFilters(['marque', 'modele', 'statut','type_moteur'])
+        
+    $vehicles = Cache::remember('vehicules', 360, function () {
+        return QueryBuilder::for(Vehicule::class)
+            ->allowedFilters(['marque', 'modele', 'statut', 'type_moteur'])
             ->paginate(10);
+    });
+      
 
         return response()->json(VehiculeResource::collection($vehicles) ,200);
     }
